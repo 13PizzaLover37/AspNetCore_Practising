@@ -26,4 +26,7 @@ app.MapPost("/todos", (Todo_Model todo) =>
     return TypedResults.Created("/todos/{id}", todo);
 });
 
+// delete
+app.MapDelete("/todos/{id}", (int id) => { todos.RemoveAll(el => el.Id == id); return TypedResults.NotFound(); });
+
 app.Run();
