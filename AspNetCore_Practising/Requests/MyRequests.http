@@ -21,3 +21,10 @@ content-Type: application/json
 ###
 
 DELETE https://localhost:7199/todos/1
+###
+
+GET https://localhost:7199/tasks/1
+###
+
+GET https://localhost:7199/tasks
+
