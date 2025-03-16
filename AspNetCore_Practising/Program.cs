@@ -3,19 +3,30 @@ using Microsoft.AspNetCore.Http.HttpResults;
 
 var builder = WebApplication.CreateBuilder(args);
 var app = builder.Build();
-IEnumerable<Todo_Model> todos = new List<Todo_Model>();
+var todos = new List<Todo_Model>();
 
 app.MapGet("/", () => "Hello World!");
 
 // todos
+// get
 app.MapGet("/todos", () => todos);
 app.MapGet("/todos/{id}", Results<Ok<Todo_Model>, NotFound> (int id) =>
 {
     var record = todos.FirstOrDefault(el => el.Id == id);
 
-    return record == null 
+    return record == null
     ? TypedResults.NotFound()
     : TypedResults.Ok(record);
 });
+
+// post
+app.MapPost("/todos", (Todo_Model todo) =>
+{
+    todos.Add(todo);
+    return TypedResults.Created("/todos/{id}", todo);
+});
+
+// delete
+app.MapDelete("/todos/{id}", (int id) => { todos.RemoveAll(el => el.Id == id); return TypedResults.NotFound(); });
 
 app.Run();

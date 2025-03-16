@@ -7,3 +7,17 @@ GET https://localhost:7199/todos/1
 ###
 
 GET https://localhost:7199
+###
+
+POST https://localhost:7199/todos
+content-Type: application/json
+{
+  "Id": 1,
+  "Name": "First Todo",
+  "DueDate": "2025-12-31",
+  "IsCompleted": false
+}
+
+###
+
+DELETE https://localhost:7199/todos/1
