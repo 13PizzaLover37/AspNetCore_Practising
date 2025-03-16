@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 
 var builder = WebApplication.CreateBuilder(args);
 var app = builder.Build();
-IEnumerable<Todo_Model> todos = new List<Todo_Model>();
+var todos = new List<Todo_Model>();
 
 app.MapGet("/", () => "Hello World!");
 
