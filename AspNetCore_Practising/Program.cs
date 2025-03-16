@@ -1,9 +1,20 @@
 using AspNetCore_Practising.Models;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Rewrite;
 
 var builder = WebApplication.CreateBuilder(args);
 var app = builder.Build();
 var todos = new List<Todo_Model>();
+
+app.UseRewriter(new RewriteOptions().AddRedirect("tasks/(.*)", "todos/$1"));
+app.UseRewriter(new RewriteOptions().AddRedirect("tasks", "todos"));
+
+app.Use(async (context, next) =>
+{
+    Console.WriteLine($"\n[{context.Request.Method} on {context.Request.Path} at {DateTime.Now}] Started");
+    await next(context);
+    Console.WriteLine($"[{context.Request.Method} on {context.Request.Path} at {DateTime.Now}] Ended");
+});
 
 app.MapGet("/", () => "Hello World!");
 
