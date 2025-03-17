@@ -35,6 +35,24 @@ app.MapPost("/todos", (Todo_Model todo) =>
 {
     todos.Add(todo);
     return TypedResults.Created("/todos/{id}", todo);
+}).AddEndpointFilter(async (context, next) =>
+{
+    var argument = context.GetArgument<Todo_Model>(0);
+    var errors = new Dictionary<string, string[]>();
+
+    if (string.IsNullOrWhiteSpace(argument.Name))
+        errors.Add(nameof(argument.Name), ["Todo's name cannot be null or empty"]);
+
+    if (argument.DueDate < DateTime.Now)
+        errors.Add(nameof(argument.DueDate), ["You cannot add a todo with due date in the past"]);
+
+    if (argument.IsCompleted)
+        errors.Add(nameof(argument.IsCompleted), ["You cannot add a completed todo"]);
+
+    if (errors.Count > 0)
+        return Results.ValidationProblem(errors);
+
+    return await next(context);
 });
 
 // delete
