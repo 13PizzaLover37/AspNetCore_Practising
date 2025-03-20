@@ -1,8 +1,12 @@
 using AspNetCore_Practising.Models;
+using AspNetCore_Practising.Models.Interfaces;
+using AspNetCore_Practising.Services;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Rewrite;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddSingleton<ITaskService>(new InMemoryTaskService());
+
 var app = builder.Build();
 var todos = new List<Todo_Model>();
 
@@ -20,10 +24,10 @@ app.MapGet("/", () => "Hello World!");
 
 // todos
 // get
-app.MapGet("/todos", () => todos);
-app.MapGet("/todos/{id}", Results<Ok<Todo_Model>, NotFound> (int id) =>
+app.MapGet("/todos", (ITaskService service) => service.GetTodos());
+app.MapGet("/todos/{id}", Results<Ok<Todo_Model>, NotFound> (int id, ITaskService service) =>
 {
-    var record = todos.FirstOrDefault(el => el.Id == id);
+    var record = service.GetTodoById(id);
 
     return record == null
     ? TypedResults.NotFound()
@@ -31,9 +35,9 @@ app.MapGet("/todos/{id}", Results<Ok<Todo_Model>, NotFound> (int id) =>
 });
 
 // post
-app.MapPost("/todos", (Todo_Model todo) =>
+app.MapPost("/todos", (Todo_Model todo, ITaskService service) =>
 {
-    todos.Add(todo);
+    service.AddTodo(todo);
     return TypedResults.Created("/todos/{id}", todo);
 }).AddEndpointFilter(async (context, next) =>
 {
@@ -56,6 +60,10 @@ app.MapPost("/todos", (Todo_Model todo) =>
 });
 
 // delete
-app.MapDelete("/todos/{id}", (int id) => { todos.RemoveAll(el => el.Id == id); return TypedResults.NotFound(); });
+app.MapDelete("/todos/{id}", (int id, ITaskService service) =>
+{
+    service.DeleteTodoById(id);
+    return TypedResults.NotFound();
+});
 
 app.Run();
